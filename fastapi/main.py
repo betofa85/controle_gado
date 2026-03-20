@@ -70,6 +70,22 @@ def atualizar_fazenda(dados: FazendaUpdate, db: Session = Depends(database.get_d
     db.refresh(fazenda)
     return fazenda
 
+@app.post("/fazenda/1/upload-foto")
+async def upload_foto_fazenda(file: UploadFile = File(...), db: Session = Depends(database.get_db)):
+    # Define um nome fixo ou único para a foto da fazenda
+    file_path = f"{UPLOAD_DIR}/perfil_fazenda_{file.filename}"
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    fazenda = db.query(models.Fazenda).filter(models.Fazenda.id == 1).first()
+    # Atualiza a URL no banco
+    fazenda.foto_url = f"http://192.168.68.120:8000/{file_path}"
+    
+    db.commit()
+    db.refresh(fazenda)
+    return {"url": fazenda.foto_url}
+
 # --- ROTAS DO GADO (CRUD) ---
 
 @app.get("/gados/")
