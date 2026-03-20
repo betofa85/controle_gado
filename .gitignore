@@ -16,3 +16,6 @@ fastapi/uploads/
 
 # Segredos
 .env
+
+#Foto Fazendo
+frontend/public
