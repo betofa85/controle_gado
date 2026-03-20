@@ -1,0 +1,55 @@
+# /docker-compose.yml
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_gado
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: SenhaForte
+      POSTGRES_DB: controle_gado
+    volumes:
+      # Os dados do banco ficam guardados dentro da pasta database/data do seu projeto
+      - ./database/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    build:
+      context: ./fastapi  # Docker olha para esta pasta
+      dockerfile: Dockerfile
+    container_name: fastapi_gado
+    volumes:
+      - ./fastapi/uploads:/app/uploads
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      # A API fala com o serviço 'db' na rede interna do Docker
+      - DATABASE_URL=postgresql://admin:SenhaForte@db:5432/controle_gado
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_gado
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: react_gado
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Evita sobrescrever os pacotes instalados no container
+    depends_on:
+      - api

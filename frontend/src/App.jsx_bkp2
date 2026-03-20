@@ -1,0 +1,54 @@
+import { useEffect, useState } from 'react'
+
+function App() {
+  const [gados, setGados] = useState([])
+  const [erro, setErro] = useState(null)
+  const [carregando, setCarregando] = useState(true)
+
+  useEffect(() => {
+    fetch('http://192.168.68.120:8000/gados/')
+      .then(res => {
+        if (!res.ok) throw new Error('Erro ao conectar com a API')
+        return res.json()
+      })
+      .then(data => {
+        setGados(data)
+        setCarregando(false)
+      })
+      .catch(err => {
+        setErro(err.message)
+        setCarregando(false)
+      })
+  }, [])
+
+  if (carregando) return <h1>Carregando bois... 🐂</h1>
+  if (erro) return <h1 style={{color: 'red'}}>Erro: {erro}</h1>
+
+  return (
+    <div style={{ padding: '20px' }}>
+      <h1>Controle de Gado 🐂</h1>
+      {gados.length === 0 ? (
+        <p>Nenhum gado encontrado no banco.</p>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
+          {gados.map(gado => (
+            <div key={gado.id} style={{ border: '1px solid #ccc', borderRadius: '12px', overflow: 'hidden', paddingBottom: '10px' }}>
+              {gado.foto_url ? (
+                <img src={gado.foto_url} alt={gado.nome} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+              ) : (
+                <div style={{ height: '200px', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Sem foto</div>
+              )}
+              <div style={{ padding: '10px' }}>
+                <h3>{gado.nome || 'Sem nome'}</h3>
+                <p><strong>Brinco:</strong> {gado.brinco}</p>
+                <p><strong>Nascimento:</strong> {gado.nascimento}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default App

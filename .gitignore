@@ -1,0 +1,18 @@
+# Banco de Dados (NUNCA suba a pasta de dados)
+database/data/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+env/
+
+# Node/React
+node_modules/
+dist/
+
+# Uploads (Fotos dos bois - melhor manter local ou no servidor)
+fastapi/uploads/
+
+# Segredos
+.env
